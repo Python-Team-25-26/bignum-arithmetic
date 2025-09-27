@@ -1,9 +1,11 @@
 class BigNum:
 
-    M = 1000
+    M = 2
     N = 100
 
     def __init__(self, value: int = 0):
+        if value > BigNum.M ** BigNum.N:
+            raise OverflowError("BigNum Overflow Error")
         self.sign = 1
         self.digits = []
         if value != 0:
@@ -77,6 +79,9 @@ class BigNum:
 
             total = a + b + carry
             carry = total // self.M
+            if len(result.digits) + 1 > BigNum.N:
+                raise OverflowError("BigNum Overflow Error")
+
             result.digits.append(total % self.M)
 
         return result
@@ -153,6 +158,10 @@ class BigNum:
             if carry > 0:
                 result.digits[i + len(other.digits)] += carry
 
+            if len(result.digits) + 1 > BigNum.N:
+                raise OverflowError("BigNum Overflow Error")
+
+
         while len(result.digits) > 1 and result.digits[-1] == 0:
             result.digits.pop()
 
@@ -190,7 +199,7 @@ class BigNum:
             num = str(num)
             num = (Msize-len(num))*'0' + num
             i = 0
-            while (BigNum.M > 10**i):
+            while (Msize > i):
                 currNum *= 10
                 currNum += int(num[i])
                 quotient *= 10
@@ -218,12 +227,12 @@ if __name__ == "__main__":
     print(B // A)
     print((BigNum(15) // BigNum(2)) * BigNum(2))
 
-    C = BigNum(1234567)
+    C = BigNum(1234)
     D = BigNum(132)
 
     print(C // D)
 
-    E = BigNum(100_000_000)
+    E = BigNum(100)
     F = BigNum(2)
 
     print(E // F, E // C, E // D)
