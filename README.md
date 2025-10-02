@@ -31,7 +31,7 @@ source venv/bin/activate
 ```bash
 pip install -r requirements.txt
 ```
-### 4. Запустите программу
+### 5. Запустите программу
 ```bash
 python task_2_bignum_arithmetic.py
 ```
