@@ -1,6 +1,6 @@
 class BigNum:
 
-    M = 2
+    M = 1000
     N = 100
 
     def __init__(self, value: int = 0):
@@ -100,10 +100,10 @@ class BigNum:
 
         result = BigNum()
 
-        if abs_compare > 0:  # self > other
+        if abs_compare > 0:  
             result.sign = self.sign
             larger, smaller = self, other
-        else:  # self < other
+        else: 
             result.sign = -self.sign
             larger, smaller = other, self
 
@@ -169,70 +169,87 @@ class BigNum:
         return result
 
     def __floordiv__(self, other):
-        if isinstance(other, int):
-            other = BigNum(other)
+ 
+     if isinstance(other, int):
+        other = BigNum(other)
+    
+     if other._compare_abs(BigNum(0))==0:
+        raise ZeroDivisionError("Division by zero")  
+    
+     result_sign = self.sign * other.sign
+   
+     dividend = BigNum()
+     dividend.copy(self)
+     divisor = BigNum()
+     divisor.copy(other)
+     dividend.sign = divisor.sign = 1
 
-        result_sign = self.sign * other.sign
 
-        dividend = BigNum()
-        dividend.copy(self)
-        divisor = BigNum()
-        divisor.copy(other)
-        dividend.sign = divisor.sign = 1
+     if dividend._compare_abs(divisor) < 0:
+         return BigNum(0)
+    
+ 
+     if dividend._compare_abs(divisor) == 0: 
+        result = BigNum(1)  
+        result.sign = result_sign
+        return result
 
-        # Если делимое меньше делителя
-        if dividend._compare_abs(divisor) < 0:
-            return BigNum(0)
+    
+     if divisor._compare_abs(BigNum(1)) == 0:
+        result = BigNum()
+        result.copy(self)
+        result.sign = result_sign
+        return result
+ 
+     quotient = BigNum(0)
+     remainder = BigNum(0)
+   
+     for i in range(len(dividend.digits) - 1, -1, -1):
+        remainder = remainder * BigNum(self.M) + BigNum(dividend.digits[i])
+        
+        if remainder._compare_abs(divisor) < 0:
+            quotient = quotient * BigNum(self.M)
+            continue
+        
+        
+        digit = 0
+        for j in range(1, self.M):  
+            temp_product = divisor * BigNum(j)
+            
+            if temp_product._compare_abs(remainder) <= 0:
+                digit = j  
+            else:
+                break 
+       
+        quotient = quotient * BigNum(self.M) + BigNum(digit)
+        
+  
+        remainder = remainder - divisor * BigNum(digit)
+    
+    
+     quotient.sign = result_sign
+     return quotient
 
-        if divisor == BigNum(1):
-            result = BigNum()
-            result.copy(self)
-            result.sign = result_sign
-            return result
 
-        quotient = BigNum()
-        currNum = BigNum()
-        Bzero = BigNum(0)
-        numArr = dividend.digits[::-1]
-        Msize = len(str(BigNum.M-1))
-        for id, num in enumerate(numArr):
-            num = str(num)
-            num = (Msize-len(num))*'0' + num
-            i = 0
-            while (Msize > i):
-                currNum *= 10
-                currNum += int(num[i])
-                quotient *= 10
-
-                for j in range(1, 11):
-                    if (currNum - divisor * j).sign == -1:
-                        if j != 0:
-                            quotient += j - 1
-                            currNum -= divisor * (j - 1)
-                        break
-                    elif Bzero._compare_abs(currNum - divisor * j) == 0:
-                        quotient += j
-                        currNum -= divisor * j
-                        break
-
-                i += 1
-
-        return quotient
+          
 
 
 if __name__ == "__main__":
-    A = BigNum(12)
-    B = A * A
-    print(A, B, A * BigNum(9))
-    print(B // A)
-    print((BigNum(15) // BigNum(2)) * BigNum(2))
+    A = BigNum(123456)
+    B = BigNum(789012)
+    print(A, B, A+B)
 
-    C = BigNum(1234)
-    D = BigNum(132)
+    C = BigNum(-999)
+    D = BigNum(-1000)
+    print(C, D, C-D)
 
-    print(C // D)
+    E = BigNum(-123)
+    F = BigNum(456)
+    print(E, F, E*F)
 
-    E = BigNum(100)
-    F = BigNum(2)
+    G = BigNum(-123456)
+    H = BigNum(-123)
+    print(G, H, G//H)
 
-    print(E // F, E // C, E // D)
+
+
